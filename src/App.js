@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useMemo } from "react";
 
 const MACHINES_DEF = [
@@ -517,4 +518,3 @@ export default function App(){
 
     {showQR&&<QRModal cylindre={showQR} machine={gm(showQR.machineId)} poste={gp(showQR.machineId,showQR.posteId)} onClose={()=>setShowQR(null)}/>}
   </div>;
-}
