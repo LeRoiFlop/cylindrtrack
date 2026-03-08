@@ -73,7 +73,7 @@ function Modal({title,onClose,children,width=480}){
   return <div style={{position:"fixed",inset:0,background:"rgba(5,20,50,.55)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:16}} onClick={e=>e.target===e.currentTarget&&onClose()}>
     <div style={{background:"#fff",borderRadius:18,padding:26,width:"100%",maxWidth:width,maxHeight:"92vh",overflowY:"auto",boxShadow:"0 24px 80px rgba(0,0,0,.3)"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
-        <div style={{fontSize:16,fontWeight:900,color:"${HEXCEL_DARK}"}}>{title}</div>
+        <div style={{fontSize:16,fontWeight:900,color:HEXCEL_DARK}}>{title}</div>
         <button onClick={onClose} style={{background:"none",border:"none",fontSize:22,cursor:"pointer",color:"#bbb"}}>✕</button>
       </div>
       {children}
@@ -90,7 +90,7 @@ function CylForm({initial, machines, onSave, onClose}){
   return <Modal title={initial.id?`✏️ Modifier — ${initial.nom||initial.id}`:"➕ Nouveau cylindre"} onClose={onClose}>
     {/* Nom du cylindre — mis en avant */}
     <div style={{background:"#EBF3FF",borderRadius:12,padding:"12px 14px",marginBottom:18,border:"2px solid #BDD7EE"}}>
-      <label style={{...lbl,color:"${HEXCEL_BLUE}"}}>🏷️ Nom du cylindre</label>
+      <label style={{...lbl,color:HEXCEL_BLUE}}>🏷️ Nom du cylindre</label>
       <input value={d.nom||""} onChange={e=>f("nom",e.target.value)} style={{...inp,fontSize:15,fontWeight:700}} placeholder="Ex : Applicateur A1, Presseur Principal…"/>
       <div style={{fontSize:11,color:"#888",marginTop:5}}>Ce nom apparaîtra partout dans l'application.</div>
     </div>
@@ -165,7 +165,7 @@ function ActionModal({cylindre,machine,poste,onAction,onClose}){
   const [sel,setSel]=useState(null);
 
   const actions=[
-    {key:"Sur Machine",     icon:"⚙️",label:"Monter sur machine",  bg:"#E3F2FD",fg:"${HEXCEL_BLUE}"},
+    {key:"Sur Machine",     icon:"⚙️",label:"Monter sur machine",  bg:"#E3F2FD",fg:HEXCEL_BLUE},
     {key:"Chez Fournisseur",icon:"🏭",label:"Expédier fournisseur",bg:"#FFF8E1",fg:"#6D4C00"},
     {key:"En Stock",        icon:"📦",label:"Mettre en stock",      bg:"#E8F5E9",fg:"#1B5E20"},
     {key:"Hors Service",    icon:"🛑",label:"Hors service",         bg:"#FFEBEE",fg:"#7B0000"},
@@ -201,7 +201,7 @@ function QRModal({cylindre,machine,poste,onClose}){
   return <Modal title="📱 QR Code" onClose={onClose} width={340}>
     <div style={{textAlign:"center"}}>
       <img src={url} width={180} height={180} alt="QR" style={{borderRadius:10,border:"2px solid #DDE8F5",display:"block",margin:"0 auto"}}/>
-      <div style={{fontWeight:800,fontSize:15,color:"${HEXCEL_DARK}",marginTop:12}}>{cylindre.nom||cylindre.id}</div>
+      <div style={{fontWeight:800,fontSize:15,color:HEXCEL_DARK,marginTop:12}}>{cylindre.nom||cylindre.id}</div>
       <div style={{fontSize:12,color:"#888",marginBottom:8}}>{cylindre.id}</div>
       <div style={{fontSize:12,color:"#888",marginBottom:10}}>{machine?.nom} · {poste?.nom}</div>
       <Badge loc={cylindre.localisation}/>
@@ -341,7 +341,7 @@ export default function App(){
     setRenaming(null);
   };
 
-  const delCyl=id=>{ if(window.confirm("Supprimer ce cylindre ?")) setCyls(cs=>cs.filter(c=>c.id!==id)); };
+  const delCyl=id=>{ if(confirm("Supprimer ce cylindre ?")) setCyls(cs=>cs.filter(c=>c.id!==id)); };
 
   const EMPTY={machineId:machines[0].id,posteId:machines[0].postes[0].id,localisation:"En Stock",etat:"Neuf",fournisseur:"",cycles:0,obs:"",nom:""};
 
@@ -352,7 +352,7 @@ export default function App(){
     const m=gm(c.machineId); const p=gp(c.machineId,c.posteId);
     return <div style={{padding:"11px 14px",background:i%2===0?"#fff":"#F8FAFF",borderBottom:"1px solid #EEF2FA",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
       <div style={{minWidth:160}}>
-        <div style={{fontWeight:800,color:"${HEXCEL_DARK}",fontSize:13,display:"flex",alignItems:"center",gap:6}}>
+        <div style={{fontWeight:800,color:HEXCEL_DARK,fontSize:13,display:"flex",alignItems:"center",gap:6}}>
           {c.nom||<span style={{color:"#aaa",fontStyle:"italic"}}>Sans nom</span>}
           <button onClick={()=>setRenaming(c)} title="Renommer" style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:"#aaa",padding:0,lineHeight:1}}>✏️</button>
         </div>
@@ -415,7 +415,7 @@ export default function App(){
         {machines.map(m=>{
           const mc=cyls.filter(c=>c.machineId===m.id);
           return <div key={m.id} style={{background:"#fff",borderRadius:12,padding:16,marginBottom:12,boxShadow:"0 2px 10px rgba(0,0,0,.06)"}}>
-            <div style={{fontWeight:800,color:"${HEXCEL_DARK}",marginBottom:12,fontSize:14}}>🏭 {m.nom}</div>
+            <div style={{fontWeight:800,color:HEXCEL_DARK,marginBottom:12,fontSize:14}}>🏭 {m.nom}</div>
             {m.postes.map(p=>{
               const pc=mc.filter(c=>c.posteId===p.id);
               if(!pc.length) return null;
@@ -423,7 +423,7 @@ export default function App(){
                 <div style={{fontSize:10,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:.5,marginBottom:6}}>{p.nom}</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                   {pc.map(c=><div key={c.id} style={{background:LOC_CFG[c.localisation]?.bg,border:`1px solid ${LOC_CFG[c.localisation]?.dot}40`,borderRadius:10,padding:"7px 12px",fontSize:12,cursor:"pointer"}} onClick={()=>setScannedCyl(c)}>
-                    <div style={{fontWeight:800,color:"${HEXCEL_DARK}"}}>{c.nom||<em style={{color:"#aaa"}}>Sans nom</em>}</div>
+                    <div style={{fontWeight:800,color:HEXCEL_DARK}}>{c.nom||<em style={{color:"#aaa"}}>Sans nom</em>}</div>
                     <div style={{display:"flex",alignItems:"center",gap:6,marginTop:3}}>
                       {LOC_CFG[c.localisation]?.icon} <span style={{color:"#666"}}>{c.localisation}</span>
                       {c.localisation==="Chez Fournisseur"&&c.fournisseur&&<span style={{color:"#F9A825",fontWeight:700}}>· {c.fournisseur}</span>}
@@ -439,7 +439,7 @@ export default function App(){
 
       {/* ═══ MACHINES ═══ */}
       {tab==="machines"&&<div>
-        <div style={{fontWeight:800,color:"${HEXCEL_DARK}",fontSize:15,marginBottom:14}}>🏭 Machines & sous-ensembles</div>
+        <div style={{fontWeight:800,color:HEXCEL_DARK,fontSize:15,marginBottom:14}}>🏭 Machines & sous-ensembles</div>
         {machines.map(m=>{
           const isOpen=expanded[m.id];
           return <div key={m.id} style={{background:"#fff",borderRadius:14,marginBottom:12,boxShadow:"0 2px 10px rgba(0,0,0,.06)",overflow:"hidden"}}>
@@ -454,7 +454,7 @@ export default function App(){
             {isOpen&&m.postes.map(p=>{
               const pc=cyls.filter(c=>c.machineId===m.id&&c.posteId===p.id);
               return <div key={p.id} style={{borderBottom:"1px solid #EEF2FA"}}>
-                <div style={{padding:"9px 16px 5px",background:"#F0F6FF",fontWeight:700,fontSize:12,color:"${HEXCEL_BLUE}",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{padding:"9px 16px 5px",background:"#F0F6FF",fontWeight:700,fontSize:12,color:HEXCEL_BLUE,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <span>⚙️ {p.nom} <span style={{color:"#aaa",fontWeight:400}}>({pc.length})</span></span>
                 </div>
                 {pc.map((c,i)=><CylRow key={c.id} c={c} i={i} showMachine={false}/>)}
@@ -472,17 +472,17 @@ export default function App(){
       {/* ═══ SCANNER ═══ */}
       {tab==="scanner"&&<div style={{textAlign:"center",paddingTop:20}}>
         <div style={{fontSize:70,marginBottom:14}}>📷</div>
-        <div style={{fontWeight:800,fontSize:19,color:"${HEXCEL_DARK}",marginBottom:8}}>Scanner un cylindre</div>
+        <div style={{fontWeight:800,fontSize:19,color:HEXCEL_DARK,marginBottom:8}}>Scanner un cylindre</div>
         <div style={{color:"#666",fontSize:13,maxWidth:300,margin:"0 auto 28px"}}>
           Scannez le QR code sur la caisse → choisissez l'action en un clic.
         </div>
         <Btn onClick={()=>setScanning(true)} style={{fontSize:15,padding:"13px 30px"}}>📷 Ouvrir la caméra</Btn>
         <div style={{marginTop:30,background:"#fff",borderRadius:14,padding:18,boxShadow:"0 2px 10px rgba(0,0,0,.06)",maxWidth:400,margin:"30px auto 0"}}>
-          <div style={{fontWeight:700,color:"${HEXCEL_DARK}",marginBottom:10}}>🧪 Tester sans caméra</div>
+          <div style={{fontWeight:700,color:HEXCEL_DARK,marginBottom:10}}>🧪 Tester sans caméra</div>
           <div style={{display:"flex",flexDirection:"column",gap:6}}>
             {cyls.map(c=><button key={c.id} onClick={()=>handleQR(c.id)} style={{background:"#F0F6FF",border:"1px solid #C5D5EA",borderRadius:8,padding:"8px 12px",cursor:"pointer",textAlign:"left",fontSize:12,display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
               <div>
-                <span style={{fontWeight:800,color:"${HEXCEL_BLUE}"}}>{c.nom||c.id}</span>
+                <span style={{fontWeight:800,color:HEXCEL_BLUE}}>{c.nom||c.id}</span>
                 <span style={{color:"#aaa",fontSize:11,marginLeft:6}}>{c.id}</span>
               </div>
               <Badge loc={c.localisation} small/>
@@ -502,7 +502,7 @@ export default function App(){
         <div style={{color:"#666",fontSize:13,marginBottom:20}}>La caméra fonctionne sur mobile.<br/>Simulez un scan ci-dessous :</div>
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
           {cyls.map(c=><button key={c.id} onClick={()=>handleQR(c.id)} style={{background:"#F0F6FF",border:"1px solid #C5D5EA",borderRadius:8,padding:"8px 12px",cursor:"pointer",textAlign:"left",fontSize:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <span style={{fontWeight:700,color:"${HEXCEL_BLUE}"}}>{c.nom||c.id}</span>
+            <span style={{fontWeight:700,color:HEXCEL_BLUE}}>{c.nom||c.id}</span>
             <Badge loc={c.localisation} small/>
           </button>)}
         </div>
