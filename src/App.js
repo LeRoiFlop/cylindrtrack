@@ -1,5 +1,7 @@
 /* eslint-disable */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+
+const API_URL = "https://script.google.com/macros/s/AKfycbw_akbSm8PKrKjQpG4xPRZPt6CzA40PxTsgScRq6BF-FgGOVTt9ULB8n4fM80mwDHsK/exec";
 
 const MACHINES_DEF = [
   { id:"F0NN", nom:"Machine F0NN", postes:[
@@ -283,6 +285,31 @@ export default function App(){
   const machines=MACHINES_DEF;
   const [cyls,setCyls]=useState(INIT);
   const [hist,setHist]=useState(INIT_HIST);
+  const [loading,setLoading]=useState(true);
+  const [syncing,setSyncing]=useState(false);
+
+  // Chargement depuis Google Sheets au démarrage
+  useEffect(()=>{
+    if(API_URL==="COLLER_URL_ICI"){setLoading(false);return;}
+    Promise.all([
+      fetch(API_URL+"?action=getCylindres").then(r=>r.json()).catch(()=>null),
+      fetch(API_URL+"?action=getHistorique").then(r=>r.json()).catch(()=>null)
+    ]).then(([c,h])=>{
+      if(c&&c.length>0) setCyls(c.map(x=>({...x,cycles:Number(x.cycles)||0})));
+      if(h&&h.length>0) setHist(h);
+      setLoading(false);
+    }).catch(()=>setLoading(false));
+  },[]);
+
+  // Sauvegarde vers Google Sheets
+  const saveToSheets = (newCyls, newHist) => {
+    if(API_URL==="COLLER_URL_ICI") return;
+    setSyncing(true);
+    Promise.all([
+      fetch(API_URL, {method:"POST",body:JSON.stringify({action:"saveCylindres",data:newCyls})}).catch(()=>null),
+      newHist && fetch(API_URL, {method:"POST",body:JSON.stringify({action:"saveHistorique",data:newHist})}).catch(()=>null)
+    ]).finally(()=>setSyncing(false));
+  };
 
   const [scannedCyl,setScannedCyl]=useState(null);
   const [scanning,setScanning]=useState(false);
@@ -320,29 +347,37 @@ export default function App(){
   };
 
   const handleAction=({newLoc,operateur,notes,fournisseur})=>{
-    setCyls(cs=>cs.map(c=>c.id!==scannedCyl.id?c:{...c,localisation:newLoc,
+    const newCyls = cyls.map(c=>c.id!==scannedCyl.id?c:{...c,localisation:newLoc,
       fournisseur:newLoc==="Chez Fournisseur"?fournisseur:(newLoc!=="Chez Fournisseur"?""  :c.fournisseur),
-    }));
-    setHist(h=>[{date:todayISO(),cylindreId:scannedCyl.id,action:newLoc,fournisseur:newLoc==="Chez Fournisseur"?fournisseur:"",operateur,notes},...h]);
+    });
+    const newHist = [{date:todayISO(),cylindreId:scannedCyl.id,action:newLoc,fournisseur:newLoc==="Chez Fournisseur"?fournisseur:"",operateur,notes},...hist];
+    setCyls(newCyls);
+    setHist(newHist);
+    saveToSheets(newCyls, newHist);
     setScannedCyl(null);
   };
 
   const saveCyl=data=>{
+    let newCyls;
     if(editCyl){
-      setCyls(cs=>cs.map(c=>c.id===editCyl.id?{...data,id:editCyl.id}:c));
+      newCyls = cyls.map(c=>c.id===editCyl.id?{...data,id:editCyl.id}:c);
     } else {
       const n=cyls.filter(c=>c.machineId===data.machineId&&c.posteId===data.posteId).length+1;
-      setCyls(cs=>[...cs,{...data,id:mkId(data.machineId,data.posteId,n)}]);
+      newCyls = [...cyls,{...data,id:mkId(data.machineId,data.posteId,n)}];
     }
+    setCyls(newCyls);
+    saveToSheets(newCyls, null);
     setShowForm(false); setEditCyl(null);
   };
 
   const rename=(id,newNom)=>{
-    setCyls(cs=>cs.map(c=>c.id===id?{...c,nom:newNom}:c));
+    const newCyls = cyls.map(c=>c.id===id?{...c,nom:newNom}:c);
+    setCyls(newCyls);
+    saveToSheets(newCyls, null);
     setRenaming(null);
   };
 
-  const delCyl=id=>{ if(confirm("Supprimer ce cylindre ?")) setCyls(cs=>cs.filter(c=>c.id!==id)); };
+  const delCyl=id=>{ if(window.confirm("Supprimer ce cylindre ?")) { const newCyls=cyls.filter(c=>c.id!==id); setCyls(newCyls); saveToSheets(newCyls, null); } };
 
   const EMPTY={machineId:machines[0].id,posteId:machines[0].postes[0].id,localisation:"En Stock",etat:"Neuf",fournisseur:"",cycles:0,obs:"",nom:""};
 
@@ -370,7 +405,15 @@ export default function App(){
     </div>;
   };
 
+  if(loading) return <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",background:"#EEF3FA",flexDirection:"column",gap:16}}>
+    <div style={{fontSize:40}}>⚙️</div>
+    <div style={{fontWeight:700,color:HEXCEL_DARK,fontSize:18}}>Chargement CylindrTrack...</div>
+    <div style={{color:"#888",fontSize:13}}>Connexion à Google Sheets</div>
+  </div>;
+
   return <div style={{fontFamily:"'Segoe UI',system-ui,sans-serif",background:"#EEF3FA",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+
+    {syncing && <div style={{position:"fixed",bottom:16,right:16,background:HEXCEL_BLUE,color:"#fff",padding:"8px 16px",borderRadius:20,fontSize:12,fontWeight:700,zIndex:999,boxShadow:"0 4px 12px rgba(0,0,0,.2)"}}>💾 Sauvegarde...</div>}
 
     {/* HEADER */}
     <div style={{background:`linear-gradient(135deg,${HEXCEL_DARK} 0%,${HEXCEL_BLUE} 100%)`,padding:"14px 16px 0",position:"sticky",top:0,zIndex:100,boxShadow:"0 4px 20px rgba(0,0,0,.25)"}}>
@@ -518,3 +561,4 @@ export default function App(){
 
     {showQR&&<QRModal cylindre={showQR} machine={gm(showQR.machineId)} poste={gp(showQR.machineId,showQR.posteId)} onClose={()=>setShowQR(null)}/>}
   </div>;
+}
