@@ -14,7 +14,7 @@ const MACHINES_DEF = [
   ]},
 ];
 
-const LOCS  = ["Sur Machine","Chez Fournisseur","En Stock","Hors Service"];
+const LOCS  = ["Sur Machine","Chez Fournisseur","En Stock","À Rectifier"];
 const ETATS = ["Neuf","Bon","Usé","Rectification","Rebut"];
 
 const HEXCEL_BLUE = "#2B5CAD";
@@ -22,10 +22,10 @@ const HEXCEL_DARK = "#1A3A6E";
 const HEXCEL_LIGHT = "#EAF0FB";
 
 const LOC_CFG = {
-  "Sur Machine":      {bg:"#EAF0FB",fg:"#1A3A6E",dot:"#2B5CAD",icon:"⚙️"},
-  "Chez Fournisseur": {bg:"#FFF8E1",fg:"#6D4C00",dot:"#F9A825",icon:"🏭"},
-  "En Stock":         {bg:"#E8F5E9",fg:"#1B5E20",dot:"#2E7D32",icon:"📦"},
-  "Hors Service":     {bg:"#FFEBEE",fg:"#7B0000",dot:"#C62828",icon:"🛑"},
+  "Sur Machine":      {bg:"#EAF0FB",fg:"#1A3A6E",dot:"#2B5CAD"},
+  "Chez Fournisseur": {bg:"#FFF8E1",fg:"#6D4C00",dot:"#F9A825"},
+  "En Stock":         {bg:"#E8F5E9",fg:"#1B5E20",dot:"#2E7D32"},
+  "À Rectifier":      {bg:"#FFEBEE",fg:"#7B0000",dot:"#C62828"},
 };
 
 const mkId = (m,p,n) => `${m}-${p.slice(0,4).toUpperCase()}-${String(n).padStart(3,"0")}`;
@@ -57,7 +57,7 @@ const lbl = {fontSize:11,fontWeight:700,color:HEXCEL_BLUE,marginBottom:4,display
 function Badge({loc,small}){
   const c=LOC_CFG[loc]||LOC_CFG["Sur Machine"];
   return <span style={{display:"inline-flex",alignItems:"center",gap:4,background:c.bg,color:c.fg,border:`1px solid ${c.dot}40`,padding:small?"2px 8px":"4px 11px",borderRadius:20,fontSize:small?11:12,fontWeight:700,whiteSpace:"nowrap"}}>
-    <span style={{width:6,height:6,borderRadius:"50%",background:c.dot,flexShrink:0}}/>{c.icon} {loc}
+    <span style={{width:6,height:6,borderRadius:"50%",background:c.dot,flexShrink:0}}/>{loc}
   </span>;
 }
 
@@ -168,21 +168,21 @@ function ActionModal({cylindre,machine,poste,onAction,onClose}){
   const [sel,setSel]=useState(null);
 
   const actions=[
-    {key:"Sur Machine",     icon:"⚙️",label:"Monter sur machine",  bg:"#E3F2FD",fg:HEXCEL_BLUE},
-    {key:"Chez Fournisseur",icon:"🏭",label:"Expédier fournisseur",bg:"#FFF8E1",fg:"#6D4C00"},
-    {key:"En Stock",        icon:"📦",label:"Mettre en stock",      bg:"#E8F5E9",fg:"#1B5E20"},
-    {key:"Hors Service",    icon:"🛑",label:"Hors service",         bg:"#FFEBEE",fg:"#7B0000"},
+    {key:"Sur Machine",     label:"Monter sur machine",  bg:"#E3F2FD",fg:HEXCEL_BLUE},
+    {key:"Chez Fournisseur",label:"Expédier fournisseur",bg:"#FFF8E1",fg:"#6D4C00"},
+    {key:"En Stock",        label:"Mettre en stock",      bg:"#E8F5E9",fg:"#1B5E20"},
+    {key:"À Rectifier",     label:"À rectifier",          bg:"#FFEBEE",fg:"#7B0000"},
   ].filter(a=>a.key!==cylindre.localisation);
 
-  return <Modal title={`🔧 Action — ${cylindre.nom||cylindre.id}`} onClose={onClose} width={440}>
+  return <Modal title={`Action — ${cylindre.nom||cylindre.id}`} onClose={onClose} width={440}>
     <div style={{background:"#F5F8FF",borderRadius:10,padding:"10px 14px",marginBottom:16,fontSize:13,display:"flex",gap:16,flexWrap:"wrap"}}>
-      <div><div style={{color:"#888",fontSize:10}}>MACHINE</div><strong>{machine?.nom}</strong></div>
+      <div><div style={{color:"#888",fontSize:10}}>MACHINE</div><strong>{machine?.id}</strong></div>
       <div><div style={{color:"#888",fontSize:10}}>POSTE</div><strong>{poste?.nom}</strong></div>
       <div><div style={{color:"#888",fontSize:10}}>ÉTAT ACTUEL</div><Badge loc={cylindre.localisation} small/></div>
     </div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:16}}>
-      {actions.map(a=><button key={a.key} onClick={()=>setSel(a.key)} style={{background:sel===a.key?a.fg:a.bg,color:sel===a.key?"#fff":a.fg,border:`2px solid ${sel===a.key?a.fg:a.fg+"40"}`,borderRadius:12,padding:"12px 8px",cursor:"pointer",fontWeight:800,fontSize:13,transition:"all .15s",textAlign:"center"}}>
-        <div style={{fontSize:24,marginBottom:4}}>{a.icon}</div>{a.label}
+      {actions.map(a=><button key={a.key} onClick={()=>setSel(a.key)} style={{background:sel===a.key?a.fg:a.bg,color:sel===a.key?"#fff":a.fg,border:`2px solid ${sel===a.key?a.fg:a.fg+"40"}`,borderRadius:12,padding:"14px 8px",cursor:"pointer",fontWeight:800,fontSize:13,transition:"all .15s",textAlign:"center"}}>
+        {a.label}
       </button>)}
     </div>
     {sel==="Chez Fournisseur"&&<div style={{marginBottom:12}}>
@@ -267,7 +267,7 @@ function HistoriqueTab({cyls, hist, gm, gp}){
   };
 
   return <div>
-    <div style={{fontWeight:800,color:HEXCEL_DARK,fontSize:15,marginBottom:14}}>📅 Historique par cylindre</div>
+    <div style={{fontWeight:800,color:HEXCEL_DARK,fontSize:15,marginBottom:14}}>Historique par cylindre</div>
     {cylsAvecHist.length===0&&<div style={{textAlign:"center",padding:40,color:"#aaa",background:"#fff",borderRadius:12}}>Aucun mouvement enregistré</div>}
     {cylsAvecHist.map(c=><CylAccordion key={c.id} c={c}/>)}
     {cylsSansHist.length>0&&<>
@@ -277,12 +277,33 @@ function HistoriqueTab({cyls, hist, gm, gp}){
   </div>;
 }
 
+/* ── Modal formulaire générique ── */
+function SimpleFormModal({title,fields,onSave,onClose}){
+  const init=Object.fromEntries(fields.map(f=>[f.k,f.defaultVal||""]));
+  const [vals,setVals]=useState(init);
+  const f=(k,v)=>setVals(p=>({...p,[k]:v}));
+  const submit=()=>{
+    if(fields.some(f=>f.required&&!vals[f.k])) return alert("Veuillez remplir tous les champs obligatoires.");
+    onSave(vals);
+  };
+  return <Modal title={title} onClose={onClose}>
+    {fields.map(field=><div key={field.k} style={{marginBottom:14}}>
+      <label style={{...lbl}}>{field.label}{field.required&&<span style={{color:"#C62828"}}> *</span>}</label>
+      <input value={vals[field.k]} onChange={e=>f(field.k,e.target.value)} style={inp} placeholder={field.label}/>
+    </div>)}
+    <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:8}}>
+      <Btn variant="secondary" onClick={onClose}>Annuler</Btn>
+      <Btn variant="primary" onClick={submit}>Enregistrer</Btn>
+    </div>
+  </Modal>;
+}
+
 /* ══════════════════════════════════════════
    APP PRINCIPALE
 ══════════════════════════════════════════ */
 export default function App(){
   const [tab,setTab]=useState("dashboard");
-  const machines=MACHINES_DEF;
+  const [machines,setMachines]=useState(MACHINES_DEF);
   const [cyls,setCyls]=useState(INIT);
   const [hist,setHist]=useState(INIT_HIST);
   const [loading,setLoading]=useState(true);
@@ -293,21 +314,24 @@ export default function App(){
     if(API_URL==="COLLER_URL_ICI"){setLoading(false);return;}
     Promise.all([
       fetch(API_URL+"?action=getCylindres").then(r=>r.json()).catch(()=>null),
-      fetch(API_URL+"?action=getHistorique").then(r=>r.json()).catch(()=>null)
-    ]).then(([c,h])=>{
+      fetch(API_URL+"?action=getHistorique").then(r=>r.json()).catch(()=>null),
+      fetch(API_URL+"?action=getMachines").then(r=>r.json()).catch(()=>null),
+    ]).then(([c,h,m])=>{
       if(c&&c.length>0) setCyls(c.map(x=>({...x,cycles:Number(x.cycles)||0})));
       if(h&&h.length>0) setHist(h);
+      if(m&&m.length>0) setMachines(m);
       setLoading(false);
     }).catch(()=>setLoading(false));
   },[]);
 
   // Sauvegarde vers Google Sheets
-  const saveToSheets = (newCyls, newHist) => {
+  const saveToSheets = (newCyls, newHist, newMachines) => {
     if(API_URL==="COLLER_URL_ICI") return;
     setSyncing(true);
     Promise.all([
-      fetch(API_URL, {method:"POST",body:JSON.stringify({action:"saveCylindres",data:newCyls})}).catch(()=>null),
-      newHist && fetch(API_URL, {method:"POST",body:JSON.stringify({action:"saveHistorique",data:newHist})}).catch(()=>null)
+      newCyls && fetch(API_URL, {method:"POST",body:JSON.stringify({action:"saveCylindres",data:newCyls})}).catch(()=>null),
+      newHist && fetch(API_URL, {method:"POST",body:JSON.stringify({action:"saveHistorique",data:newHist})}).catch(()=>null),
+      newMachines && fetch(API_URL, {method:"POST",body:JSON.stringify({action:"saveMachines",data:newMachines})}).catch(()=>null),
     ]).finally(()=>setSyncing(false));
   };
 
@@ -320,7 +344,13 @@ export default function App(){
   const [filterM,setFilterM]=useState("Toutes");
   const [filterL,setFilterL]=useState("Tous");
   const [search,setSearch]=useState("");
-  const [expanded,setExpanded]=useState({F0NN:true,F00H:true});
+  const [expanded,setExpanded]=useState({});
+
+  // Modals machines
+  const [addMachineModal,setAddMachineModal]=useState(false);
+  const [renameMachineModal,setRenameMachineModal]=useState(null); // {machineId}
+  const [addPosteModal,setAddPosteModal]=useState(null); // machineId
+  const [renamePosteModal,setRenamePosteModal]=useState(null); // {machineId, posteId}
 
   const gm=id=>machines.find(m=>m.id===id);
   const gp=(mid,pid)=>gm(mid)?.postes.find(p=>p.id===pid);
@@ -329,7 +359,7 @@ export default function App(){
     machine:cyls.filter(c=>c.localisation==="Sur Machine").length,
     fourn:  cyls.filter(c=>c.localisation==="Chez Fournisseur").length,
     stock:  cyls.filter(c=>c.localisation==="En Stock").length,
-    hs:     cyls.filter(c=>c.localisation==="Hors Service").length,
+    rectif: cyls.filter(c=>c.localisation==="À Rectifier").length,
     total:  cyls.length,
   }),[cyls]);
 
@@ -353,7 +383,7 @@ export default function App(){
     const newHist = [{date:todayISO(),cylindreId:scannedCyl.id,action:newLoc,fournisseur:newLoc==="Chez Fournisseur"?fournisseur:"",operateur,notes},...hist];
     setCyls(newCyls);
     setHist(newHist);
-    saveToSheets(newCyls, newHist);
+    saveToSheets(newCyls, newHist, null);
     setScannedCyl(null);
   };
 
@@ -366,22 +396,64 @@ export default function App(){
       newCyls = [...cyls,{...data,id:mkId(data.machineId,data.posteId,n)}];
     }
     setCyls(newCyls);
-    saveToSheets(newCyls, null);
+    saveToSheets(newCyls, null, null);
     setShowForm(false); setEditCyl(null);
   };
 
   const rename=(id,newNom)=>{
     const newCyls = cyls.map(c=>c.id===id?{...c,nom:newNom}:c);
     setCyls(newCyls);
-    saveToSheets(newCyls, null);
+    saveToSheets(newCyls, null, null);
     setRenaming(null);
   };
 
-  const delCyl=id=>{ if(window.confirm("Supprimer ce cylindre ?")) { const newCyls=cyls.filter(c=>c.id!==id); setCyls(newCyls); saveToSheets(newCyls, null); } };
+  const delCyl=id=>{ if(window.confirm("Supprimer ce cylindre ?")) { const newCyls=cyls.filter(c=>c.id!==id); setCyls(newCyls); saveToSheets(newCyls, null, null); } };
+
+  // Gestion machines
+  const addMachine=(id,nom)=>{
+    if(!id||machines.find(m=>m.id===id.toUpperCase())) return alert("Code machine déjà existant ou vide.");
+    const newM=[...machines,{id:id.toUpperCase(),nom:nom||id.toUpperCase(),postes:[]}];
+    setMachines(newM); saveToSheets(null,null,newM);
+  };
+  const renameMachine=(machineId,newId,newNom)=>{
+    const newM=machines.map(m=>m.id===machineId?{...m,id:newId.toUpperCase(),nom:newNom||newId.toUpperCase()}:m);
+    const newCyls=cyls.map(c=>c.machineId===machineId?{...c,machineId:newId.toUpperCase()}:c);
+    setMachines(newM); setCyls(newCyls);
+    saveToSheets(newCyls,null,newM);
+    setRenameMachineModal(null);
+  };
+  const delMachine=(machineId)=>{
+    if(!window.confirm(`Supprimer la machine ${machineId} et tous ses cylindres ?`)) return;
+    const newM=machines.filter(m=>m.id!==machineId);
+    const newCyls=cyls.filter(c=>c.machineId!==machineId);
+    setMachines(newM); setCyls(newCyls);
+    saveToSheets(newCyls,null,newM);
+  };
+  const addPoste=(machineId,nom)=>{
+    if(!nom) return;
+    const id=nom.toLowerCase().replace(/\s+/g,"-");
+    const newM=machines.map(m=>m.id===machineId?{...m,postes:[...m.postes,{id,nom}]}:m);
+    setMachines(newM); saveToSheets(null,null,newM);
+  };
+  const renamePoste=(machineId,posteId,newNom)=>{
+    const newId=newNom.toLowerCase().replace(/\s+/g,"-");
+    const newM=machines.map(m=>m.id===machineId?{...m,postes:m.postes.map(p=>p.id===posteId?{id:newId,nom:newNom}:p)}:m);
+    const newCyls=cyls.map(c=>c.machineId===machineId&&c.posteId===posteId?{...c,posteId:newId}:c);
+    setMachines(newM); setCyls(newCyls);
+    saveToSheets(newCyls,null,newM);
+    setRenamePosteModal(null);
+  };
+  const delPoste=(machineId,posteId)=>{
+    if(!window.confirm("Supprimer ce sous-ensemble et ses cylindres ?")) return;
+    const newM=machines.map(m=>m.id===machineId?{...m,postes:m.postes.filter(p=>p.id!==posteId)}:m);
+    const newCyls=cyls.filter(c=>!(c.machineId===machineId&&c.posteId===posteId));
+    setMachines(newM); setCyls(newCyls);
+    saveToSheets(newCyls,null,newM);
+  };
 
   const EMPTY={machineId:machines[0].id,posteId:machines[0].postes[0].id,localisation:"En Stock",etat:"Neuf",fournisseur:"",cycles:0,obs:"",nom:""};
 
-  const TABS=[{k:"dashboard",i:"📊",l:"Bord"},{k:"machines",i:"🏭",l:"Machines"},{k:"scanner",i:"📷",l:"Scanner"},{k:"historique",i:"📅",l:"Historique"}];
+  const TABS=[{k:"dashboard",l:"Tableau de bord"},{k:"machines",l:"Machines"},{k:"scanner",l:"Scanner"},{k:"historique",l:"Historique"}];
 
   /* ── Ligne cylindre réutilisable ── */
   const CylRow=({c,i,showMachine})=>{
@@ -416,25 +488,33 @@ export default function App(){
     {syncing && <div style={{position:"fixed",bottom:16,right:16,background:HEXCEL_BLUE,color:"#fff",padding:"8px 16px",borderRadius:20,fontSize:12,fontWeight:700,zIndex:999,boxShadow:"0 4px 12px rgba(0,0,0,.2)"}}>💾 Sauvegarde...</div>}
 
     {/* HEADER */}
-    <div style={{background:`linear-gradient(135deg,${HEXCEL_DARK} 0%,${HEXCEL_BLUE} 100%)`,padding:"14px 16px 0",position:"sticky",top:0,zIndex:100,boxShadow:"0 4px 20px rgba(0,0,0,.25)"}}>
-      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:12}}>
-        {/* Logo Hexcel SVG */}
+    <div style={{background:`linear-gradient(135deg,${HEXCEL_DARK} 0%,${HEXCEL_BLUE} 100%)`,padding:"16px 16px 0",position:"sticky",top:0,zIndex:100,boxShadow:"0 4px 20px rgba(0,0,0,.25)"}}>
+      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
         <svg width="110" height="34" viewBox="0 0 110 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Texte HEXCEL */}
           <text x="0" y="26" fontFamily="Arial Black, Arial" fontWeight="900" fontSize="22" fill="white" letterSpacing="-0.5">HEXCEL</text>
-          {/* Hexagones */}
           <polygon points="83,2 89,5.5 89,12.5 83,16 77,12.5 77,5.5" fill="white" opacity="1"/>
           <polygon points="91,10 97,13.5 97,20.5 91,24 85,20.5 85,13.5" fill="white" opacity=".85"/>
           <polygon points="83,18 89,21.5 89,28.5 83,32 77,28.5 77,21.5" fill="white" opacity=".7"/>
         </svg>
         <div style={{flex:1}}>
-          <div style={{color:"#A8C4E8",fontSize:11}}>Suivi de parc cylindres · F0NN & F00H</div>
+          <div style={{color:"#fff",fontSize:17,fontWeight:900,letterSpacing:.2}}>Suivi parc cylindres</div>
         </div>
       </div>
-      <div style={{display:"flex",gap:1}}>
-        {TABS.map(t=><button key={t.k} onClick={()=>setTab(t.k)} style={{background:tab===t.k?"#fff":"transparent",color:tab===t.k?HEXCEL_BLUE:"#A8C4E8",border:"none",borderRadius:"9px 9px 0 0",padding:"7px 12px",fontSize:11,fontWeight:700,cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:1}}>
-          <span style={{fontSize:15}}>{t.i}</span>{t.l}
-        </button>)}
+      <div style={{display:"flex",gap:2}}>
+        {TABS.map(t=><button key={t.k} onClick={()=>setTab(t.k)} style={{
+          background:"transparent",
+          color: tab===t.k ? "#fff" : "#7BA8D4",
+          border:"none",
+          borderBottom: tab===t.k ? "3px solid #fff" : "3px solid transparent",
+          borderRadius:0,
+          padding:"8px 16px",
+          fontSize:12,
+          fontWeight: tab===t.k ? 800 : 600,
+          cursor:"pointer",
+          letterSpacing:.3,
+          textTransform:"uppercase",
+          transition:"all .15s",
+        }}>{t.l}</button>)}
       </div>
     </div>
 
@@ -442,16 +522,15 @@ export default function App(){
 
       {/* ═══ DASHBOARD ═══ */}
       {tab==="dashboard"&&<div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:16}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:16}}>
           {[
-            {l:"Sur Machine",   v:stats.machine,...LOC_CFG["Sur Machine"]},
-            {l:"Chez Fourn.",   v:stats.fourn,  ...LOC_CFG["Chez Fournisseur"]},
-            {l:"En Stock",      v:stats.stock,  ...LOC_CFG["En Stock"]},
-            {l:"Total",         v:stats.total,  bg:"#F5F7FA",fg:"#333",dot:"#999",icon:"🔢"},
-          ].map(s=><div key={s.l} style={{background:s.bg,border:`2px solid ${s.dot}25`,borderRadius:12,padding:"12px 8px",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,.05)"}}>
-            <div style={{fontSize:20}}>{s.icon}</div>
-            <div style={{fontSize:26,fontWeight:900,color:s.fg,lineHeight:1.1}}>{s.v}</div>
-            <div style={{fontSize:10,color:s.fg+"99",fontWeight:700,marginTop:2}}>{s.l}</div>
+            {l:"Sur Machine",   v:stats.machine, ...LOC_CFG["Sur Machine"]},
+            {l:"Chez Fournisseur", v:stats.fourn, ...LOC_CFG["Chez Fournisseur"]},
+            {l:"En Stock",      v:stats.stock,   ...LOC_CFG["En Stock"]},
+            {l:"À Rectifier",   v:stats.rectif,  ...LOC_CFG["À Rectifier"]},
+          ].map(s=><div key={s.l} style={{background:s.bg,border:`2px solid ${s.dot}30`,borderRadius:14,padding:"16px 12px",textAlign:"center",boxShadow:"0 2px 8px rgba(0,0,0,.05)"}}>
+            <div style={{fontSize:30,fontWeight:900,color:s.fg,lineHeight:1}}>{s.v}</div>
+            <div style={{fontSize:11,color:s.fg+"BB",fontWeight:700,marginTop:5,letterSpacing:.3}}>{s.l.toUpperCase()}</div>
           </div>)}
         </div>
 
@@ -459,7 +538,7 @@ export default function App(){
         {machines.map(m=>{
           const mc=cyls.filter(c=>c.machineId===m.id);
           return <div key={m.id} style={{background:"#fff",borderRadius:12,padding:16,marginBottom:12,boxShadow:"0 2px 10px rgba(0,0,0,.06)"}}>
-            <div style={{fontWeight:800,color:HEXCEL_DARK,marginBottom:12,fontSize:14}}>🏭 {m.nom}</div>
+            <div style={{fontWeight:900,color:HEXCEL_DARK,marginBottom:14,fontSize:20,textAlign:"center",letterSpacing:1}}>{m.id}</div>
             {m.postes.map(p=>{
               const pc=mc.filter(c=>c.posteId===p.id);
               if(!pc.length) return null;
@@ -469,7 +548,7 @@ export default function App(){
                   {pc.map(c=><div key={c.id} style={{background:LOC_CFG[c.localisation]?.bg,border:`1px solid ${LOC_CFG[c.localisation]?.dot}40`,borderRadius:10,padding:"7px 12px",fontSize:12,cursor:"pointer"}} onClick={()=>setScannedCyl(c)}>
                     <div style={{fontWeight:800,color:HEXCEL_DARK}}>{c.nom||<em style={{color:"#aaa"}}>Sans nom</em>}</div>
                     <div style={{display:"flex",alignItems:"center",gap:6,marginTop:3}}>
-                      {LOC_CFG[c.localisation]?.icon} <span style={{color:"#666"}}>{c.localisation}</span>
+                      <span style={{color:"#666"}}>{c.localisation}</span>
                       {c.localisation==="Chez Fournisseur"&&c.fournisseur&&<span style={{color:"#F9A825",fontWeight:700}}>· {c.fournisseur}</span>}
                     </div>
                   </div>)}
@@ -478,35 +557,52 @@ export default function App(){
             })}
           </div>;
         })}
-        <div style={{fontSize:11,color:"#aaa",textAlign:"center",marginTop:8}}>💡 Cliquez sur un cylindre pour changer son état</div>
+        <div style={{fontSize:11,color:"#aaa",textAlign:"center",marginTop:8}}>Cliquez sur un cylindre pour changer son état</div>
       </div>}
 
       {/* ═══ MACHINES ═══ */}
       {tab==="machines"&&<div>
-        <div style={{fontWeight:800,color:HEXCEL_DARK,fontSize:15,marginBottom:14}}>🏭 Machines & sous-ensembles</div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+          <div style={{fontWeight:800,color:HEXCEL_DARK,fontSize:15}}>Machines & sous-ensembles</div>
+          <Btn small variant="primary" onClick={()=>setAddMachineModal(true)}>+ Machine</Btn>
+        </div>
         {machines.map(m=>{
           const isOpen=expanded[m.id];
           return <div key={m.id} style={{background:"#fff",borderRadius:14,marginBottom:12,boxShadow:"0 2px 10px rgba(0,0,0,.06)",overflow:"hidden"}}>
-            <div onClick={()=>setExpanded(e=>({...e,[m.id]:!isOpen}))} style={{display:"flex",alignItems:"center",gap:12,padding:"13px 16px",cursor:"pointer",background:HEXCEL_DARK}}>
-              <span style={{fontSize:18}}>🏭</span>
-              <div style={{flex:1}}>
-                <div style={{color:"#fff",fontWeight:800,fontSize:14}}>{m.nom}</div>
-                <div style={{color:"#90B8E0",fontSize:11}}>{m.postes.length} sous-ensemble{m.postes.length>1?"s":""} · {cyls.filter(c=>c.machineId===m.id).length} cylindres</div>
+            <div style={{display:"flex",alignItems:"center",background:HEXCEL_DARK}}>
+              <div onClick={()=>setExpanded(e=>({...e,[m.id]:!isOpen}))} style={{display:"flex",alignItems:"center",gap:12,padding:"13px 16px",cursor:"pointer",flex:1}}>
+                <div style={{flex:1}}>
+                  <div style={{color:"#fff",fontWeight:900,fontSize:18,letterSpacing:1}}>{m.id}</div>
+                  <div style={{color:"#90B8E0",fontSize:11}}>{m.postes.length} sous-ensemble{m.postes.length>1?"s":""} · {cyls.filter(c=>c.machineId===m.id).length} cylindres</div>
+                </div>
+                <span style={{color:"#90B8E0",fontSize:16}}>{isOpen?"▾":"▸"}</span>
               </div>
-              <span style={{color:"#90B8E0",fontSize:16}}>{isOpen?"▾":"▸"}</span>
+              <div style={{display:"flex",gap:4,padding:"0 12px"}}>
+                <button onClick={e=>{e.stopPropagation();setRenameMachineModal(m);}} style={{background:"rgba(255,255,255,.15)",border:"none",borderRadius:7,padding:"5px 9px",cursor:"pointer",color:"#fff",fontSize:11,fontWeight:700}}>✏️</button>
+                <button onClick={e=>{e.stopPropagation();delMachine(m.id);}} style={{background:"rgba(255,80,80,.25)",border:"none",borderRadius:7,padding:"5px 9px",cursor:"pointer",color:"#ffaaaa",fontSize:11,fontWeight:700}}>🗑️</button>
+              </div>
             </div>
-            {isOpen&&m.postes.map(p=>{
-              const pc=cyls.filter(c=>c.machineId===m.id&&c.posteId===p.id);
-              return <div key={p.id} style={{borderBottom:"1px solid #EEF2FA"}}>
-                <div style={{padding:"9px 16px 5px",background:"#F0F6FF",fontWeight:700,fontSize:12,color:HEXCEL_BLUE,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <span>⚙️ {p.nom} <span style={{color:"#aaa",fontWeight:400}}>({pc.length})</span></span>
-                </div>
-                {pc.map((c,i)=><CylRow key={c.id} c={c} i={i} showMachine={false}/>)}
-                <div style={{padding:"8px 16px"}}>
-                  <Btn small variant="ghost" onClick={()=>{setEditCyl(null);setShowForm(true);}}>+ Ajouter un cylindre</Btn>
-                </div>
-              </div>;
-            })}
+            {isOpen&&<>
+              {m.postes.map(p=>{
+                const pc=cyls.filter(c=>c.machineId===m.id&&c.posteId===p.id);
+                return <div key={p.id} style={{borderBottom:"1px solid #EEF2FA"}}>
+                  <div style={{padding:"10px 16px 7px",background:"#F0F6FF",fontWeight:800,fontSize:14,color:HEXCEL_BLUE,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span>{p.nom} <span style={{color:"#aaa",fontWeight:400,fontSize:12}}>({pc.length})</span></span>
+                    <div style={{display:"flex",gap:4}}>
+                      <button onClick={()=>setRenamePosteModal({machineId:m.id,poste:p})} style={{background:"#E3EEFF",border:"none",borderRadius:6,padding:"3px 8px",cursor:"pointer",color:HEXCEL_BLUE,fontSize:11,fontWeight:700}}>✏️</button>
+                      <button onClick={()=>delPoste(m.id,p.id)} style={{background:"#FFEBEE",border:"none",borderRadius:6,padding:"3px 8px",cursor:"pointer",color:"#C62828",fontSize:11,fontWeight:700}}>🗑️</button>
+                    </div>
+                  </div>
+                  {pc.map((c,i)=><CylRow key={c.id} c={c} i={i} showMachine={false}/>)}
+                  <div style={{padding:"8px 16px"}}>
+                    <Btn small variant="ghost" onClick={()=>{setEditCyl(null);setShowForm(true);}}>+ Ajouter un cylindre</Btn>
+                  </div>
+                </div>;
+              })}
+              <div style={{padding:"10px 16px"}}>
+                <Btn small variant="secondary" onClick={()=>setAddPosteModal(m.id)}>+ Sous-ensemble</Btn>
+              </div>
+            </>}
           </div>;
         })}
       </div>}
@@ -516,8 +612,7 @@ export default function App(){
       {/* ═══ SCANNER ═══ */}
       {tab==="scanner"&&<div style={{textAlign:"center",paddingTop:20}}>
         <div style={{fontSize:70,marginBottom:14}}>📷</div>
-        <div style={{fontWeight:800,fontSize:19,color:HEXCEL_DARK,marginBottom:8}}>Scanner un cylindre</div>
-        <div style={{color:"#666",fontSize:13,maxWidth:300,margin:"0 auto 28px"}}>
+        <div style={{fontWeight:800,fontSize:19,color:HEXCEL_DARK,marginBottom:8}}>Scanner un cylindre</div>        <div style={{color:"#666",fontSize:13,maxWidth:300,margin:"0 auto 28px"}}>
           Scannez le QR code sur la caisse → choisissez l'action en un clic.
         </div>
         <Btn onClick={()=>setScanning(true)} style={{fontSize:15,padding:"13px 30px"}}>📷 Ouvrir la caméra</Btn>
@@ -560,5 +655,17 @@ export default function App(){
     {renaming&&<RenameModal cylindre={renaming} onSave={(nom)=>rename(renaming.id,nom)} onClose={()=>setRenaming(null)}/>}
 
     {showQR&&<QRModal cylindre={showQR} machine={gm(showQR.machineId)} poste={gp(showQR.machineId,showQR.posteId)} onClose={()=>setShowQR(null)}/>}
+
+    {/* Modal ajout machine */}
+    {addMachineModal&&<SimpleFormModal title="Nouvelle machine" fields={[{k:"id",label:"Code machine (ex: F0NN)",required:true},{k:"nom",label:"Nom affiché (optionnel)"}]} onSave={v=>{ addMachine(v.id,v.nom); setAddMachineModal(false); }} onClose={()=>setAddMachineModal(false)}/>}
+
+    {/* Modal renommer machine */}
+    {renameMachineModal&&<SimpleFormModal title="Renommer la machine" fields={[{k:"id",label:"Code machine",defaultVal:renameMachineModal.id,required:true},{k:"nom",label:"Nom affiché",defaultVal:renameMachineModal.nom}]} onSave={v=>renameMachine(renameMachineModal.id,v.id,v.nom)} onClose={()=>setRenameMachineModal(null)}/>}
+
+    {/* Modal ajout sous-ensemble */}
+    {addPosteModal&&<SimpleFormModal title="Nouveau sous-ensemble" fields={[{k:"nom",label:"Nom du sous-ensemble (ex: Applicateur)",required:true}]} onSave={v=>{ addPoste(addPosteModal,v.nom); setAddPosteModal(null); }} onClose={()=>setAddPosteModal(null)}/>}
+
+    {/* Modal renommer sous-ensemble */}
+    {renamePosteModal&&<SimpleFormModal title="Renommer le sous-ensemble" fields={[{k:"nom",label:"Nouveau nom",defaultVal:renamePosteModal.poste.nom,required:true}]} onSave={v=>renamePoste(renamePosteModal.machineId,renamePosteModal.poste.id,v.nom)} onClose={()=>setRenamePosteModal(null)}/>}
   </div>;
 }
